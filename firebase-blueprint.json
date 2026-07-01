@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile and Settings",
+      "description": "User configuration, backup choices, security settings, and encrypted fields metadata",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "User ID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User custom name" },
+        "securityPin": { "type": "string", "description": "Optional encrypted or hashed security PIN to lock sensitive data" },
+        "isEncryptionEnabled": { "type": "boolean", "description": "Whether notes and names are encrypted on the client before saving" },
+        "theme": { "type": "string", "enum": ["light", "dark"], "description": "Application color theme" },
+        "autoBackupEnabled": { "type": "boolean", "description": "Whether automatic backups are simulated" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "theme"]
+    },
+    "Occasion": {
+      "title": "Occasion",
+      "description": "An event or social occasion where Noqoot or gifts are exchanged",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique occasion ID" },
+        "title": { "type": "string", "description": "Name or title of the occasion (can be encrypted)" },
+        "date": { "type": "string", "format": "date", "description": "Date of the occasion" },
+        "type": { "type": "string", "enum": ["wedding", "graduation", "birth", "eid", "other"], "description": "Category classification of the occasion" },
+        "notes": { "type": "string", "description": "Detailed notes about the event (can be encrypted)" },
+        "totalReceived": { "type": "number", "description": "Cached total monetary Noqoot received for this occasion" },
+        "totalPaid": { "type": "number", "description": "Cached total monetary Noqoot paid for this occasion" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "date", "type"]
+    },
+    "NoqootTransaction": {
+      "title": "Noqoot Transaction or Gift",
+      "description": "A specific gift or monetary Noqoot record associated with an occasion and a person",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique transaction ID" },
+        "occasionId": { "type": "string", "description": "The associated occasion ID" },
+        "type": { "type": "string", "enum": ["received", "paid"], "description": "Whether the Noqoot was received from someone or paid to someone" },
+        "personName": { "type": "string", "description": "The name of the donor or recipient (can be encrypted)" },
+        "amount": { "type": "number", "description": "The monetary amount in local currency" },
+        "giftType": { "type": "string", "enum": ["monetary", "physical"], "description": "Whether the gift is money (Noqoot) or a physical product" },
+        "giftDescription": { "type": "string", "description": "Description of the physical gift" },
+        "giftImageUrl": { "type": "string", "description": "Illustrative image URL of the gift" },
+        "isRepaid": { "type": "boolean", "description": "For received: has this been paid back? For paid: was this a payback of previous received?" },
+        "repaymentDueDate": { "type": "string", "format": "date", "description": "Due date for reciprocation or repayment" },
+        "purchaseLink": { "type": "string", "description": "Direct online store link for buying the gift" },
+        "notes": { "type": "string", "description": "Custom transaction-specific remarks" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "occasionId", "type", "personName", "amount", "giftType"]
+    },
+    "UpcomingOccasion": {
+      "title": "Upcoming Occasion",
+      "description": "A scheduled future occasion which is tracked for reminders and coordination",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique upcoming occasion ID" },
+        "userId": { "type": "string", "description": "The associated user ID" },
+        "title": { "type": "string", "description": "Title or name of the upcoming occasion" },
+        "date": { "type": "string", "format": "date", "description": "Scheduled date" },
+        "day": { "type": "string", "description": "Day name or text representation" },
+        "notes": { "type": "string", "description": "Optional notes or details" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "date", "day", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Individual user preferences and global settings"
+    },
+    "/users/{userId}/occasions/{occasionId}": {
+      "schema": "Occasion",
+      "description": "Occasions managed by the user"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": "NoqootTransaction",
+      "description": "Monetary Noqoot and gifts recorded under various occasions"
+    },
+    "/users/{userId}/upcoming_occasions/{upcomingOccasionId}": {
+      "schema": "UpcomingOccasion",
+      "description": "Future scheduled events tracked by the user"
+    }
+  }
+}
