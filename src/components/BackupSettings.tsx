@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Upload, ShieldAlert, Key, CheckCircle2, RefreshCw, Cloud, Database, Check } from 'lucide-react';
+import { Download, Upload, ShieldAlert, Key, CheckCircle2, RefreshCw, Cloud, Database, Check, Smartphone, Apple, Plus, Info, ArrowDown, ExternalLink } from 'lucide-react';
 import { UserSettings } from '../types';
 
 interface BackupSettingsProps {
@@ -94,8 +94,8 @@ export default function BackupSettings({
       {/* Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4 gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">الأمان، التشفير والنسخ الاحتياطي</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">تحكم بخصوصية بياناتك المالية، رمز الحماية PIN، والنسخ الاحتياطي السحابي التلقائي واليدوي.</p>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">الأمان، التثبيت والنسخ الاحتياطي</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">تثبيت التطبيق على هاتفك، تشفير البيانات، ومزامنة حسابك السحابي.</p>
         </div>
         <button
           onClick={onTriggerSync}
@@ -105,6 +105,56 @@ export default function BackupSettings({
           <RefreshCw size={14} className={isSyncing ? 'animate-spin text-blue-500' : ''} />
           <span>{isSyncing ? 'مزامنة جارية...' : 'مزامنة سحابية فورية'}</span>
         </button>
+      </div>
+
+      {/* Premium PWA App Installation Banner */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-slate-900/40 border border-blue-500/20 dark:border-indigo-500/20 p-6 rounded-3xl text-white space-y-4 shadow-xl shadow-blue-500/10">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white shrink-0 shadow-inner">
+            <Smartphone size={24} className="animate-bounce" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-extrabold text-base md:text-lg">تثبيت "كشف النقوط" كتطبيق على هاتفك المحمول 📱</h3>
+            <p className="text-xs text-blue-100/90 leading-relaxed">
+              تطبيقنا مجهز بالكامل للعمل كـ تطبيق تقدمي (PWA) فائق السرعة وبدون استهلاك للذاكرة. ثبت التطبيق الآن على شاشتك الرئيسية للوصول السريع ومتابعة النقوط والمناسبات في أي وقت وبدون متصفح!
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          {/* iOS Installation */}
+          <div className="bg-white/5 dark:bg-white/2 backdrop-blur-md p-4 rounded-2xl border border-white/10 space-y-3">
+            <div className="flex items-center gap-2 text-white font-bold text-xs">
+              <Apple size={16} className="text-slate-200" />
+              <span>لهواتف الأيفون (iOS - Safari)</span>
+            </div>
+            <ol className="text-[11px] text-blue-50/90 list-decimal list-inside space-y-1.5 leading-relaxed">
+              <li>افتح الرابط الحالي في متصفح <span className="font-bold underline">Safari</span> حصرياً.</li>
+              <li>اضغط على زر المشاركة <span className="font-bold">"Share"</span> (أيقونة المربع والسهم الموجه للأعلى).</li>
+              <li>اختر <span className="font-bold">"إضافة إلى الشاشة الرئيسية"</span> (Add to Home Screen).</li>
+              <li>اضغط على <span className="font-bold text-amber-300">"إضافة"</span> (Add) في الزاوية العلوية لتثبيته فوراً.</li>
+            </ol>
+          </div>
+
+          {/* Android Installation */}
+          <div className="bg-white/5 dark:bg-white/2 backdrop-blur-md p-4 rounded-2xl border border-white/10 space-y-3">
+            <div className="flex items-center gap-2 text-white font-bold text-xs">
+              <Smartphone size={16} className="text-amber-400" />
+              <span>لهواتف الأندرويد (Google Chrome)</span>
+            </div>
+            <ol className="text-[11px] text-blue-50/90 list-decimal list-inside space-y-1.5 leading-relaxed">
+              <li>افتح الرابط في متصفح <span className="font-bold underline">Google Chrome</span>.</li>
+              <li>اضغط على النقاط الثلاث <span className="font-bold">"⋮"</span> في الزاوية العلوية.</li>
+              <li>اختر <span className="font-bold">"تثبيت التطبيق"</span> (Install App) أو <span className="font-bold">"إضافة للشاشة الرئيسية"</span>.</li>
+              <li>وافق على الطلب ليظهر أيقونة التطبيق في شاشة تطبيقات هاتفك فوراً.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div className="bg-white/10 p-2.5 rounded-xl text-[10px] text-blue-100 flex items-center gap-2 font-bold justify-center">
+          <Info size={12} className="shrink-0 text-amber-300" />
+          <span>ميزة العمل دون اتصال بالإنترنت (Offline Mode) مفعلة تلقائياً بمجرد التثبيت!</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
