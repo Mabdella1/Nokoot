@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDocFromServer } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBzjgdlkeLwiK3o8gInA0tX3VOgf94LzpM",
@@ -20,8 +20,12 @@ setPersistence(auth, browserLocalPersistence).catch((err) => {
   console.error("Auth persistence setup failed:", err);
 });
 
-// Initialize Firestore with custom database ID
-const db = getFirestore(app, "ai-studio-439e8edd-f629-4919-a932-e94a37625dbc");
+// Initialize Firestore with custom database ID and persistent offline multi-tab cache
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+}, "ai-studio-439e8edd-f629-4919-a932-e94a37625dbc");
 
 export { app, auth, db };
 

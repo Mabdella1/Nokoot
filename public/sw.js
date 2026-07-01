@@ -3,7 +3,7 @@ const ASSETS = [
   '/',
   '/index.html',
   '/public/manifest.json',
-  'https://cdn-icons-png.flaticon.com/512/2184/2184742.png'
+  'https://cdn-icons-png.flaticon.com/512/11502/11502604.png'
 ];
 
 self.addEventListener('install', (e) => {
@@ -29,25 +29,54 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Simple network-first or cache fallback strategy for non-API calls
-  if (e.request.url.includes('/api/') || e.request.url.includes('firestore.googleapis.com')) {
-    return; // Let Firebase SDK handle Firestore caching
+  // 1. Only intercept GET requests
+  if (e.request.method !== 'GET') {
+    return;
   }
-  
+
+  const url = e.request.url;
+
+  // 2. Skip Firestore, Firebase Auth, and other external APIs/SDKs
+  if (
+    url.includes('/api/') ||
+    url.includes('firestore.googleapis.com') ||
+    url.includes('identitytoolkit.googleapis.com') ||
+    url.includes('securetoken.googleapis.com') ||
+    url.includes('googleapis.com') ||
+    url.includes('firebaseapp.com') ||
+    url.includes('firebase')
+  ) {
+    return; // Let browser or Firebase SDK handle these directly
+  }
+
   e.respondWith(
     fetch(e.request)
       .then((response) => {
-        // If successful, clone and cache
-        if (response.status === 200 && response.type === 'basic') {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(e.request, responseToCache);
-          });
+        // If successful, clone and cache same-origin resources or allowed assets
+        if (response.status === 200) {
+          const isSameOrigin = url.startsWith(self.location.origin);
+          const isAllowedExternal = url.includes('cdn-icons-png.flaticon.com');
+          
+          if (isSameOrigin || isAllowedExternal) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(e.request, responseToCache);
+            });
+          }
         }
         return response;
       })
       .catch(() => {
-        return caches.match(e.request);
+        return caches.match(e.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // Fallback to index.html for navigation requests
+          if (e.request.mode === 'navigate') {
+            return caches.match('/');
+          }
+          return null;
+        });
       })
   );
 });

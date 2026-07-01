@@ -20,7 +20,7 @@ import UpcomingOccasions from './components/UpcomingOccasions';
 import { 
   LayoutDashboard, FolderHeart, ShieldAlert, Sparkles, 
   Moon, Sun, LogOut, RefreshCw, EyeOff, Eye, UserCheck, ShieldCheck, Users,
-  Coins, CalendarDays
+  Coins, CalendarDays, Gift
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -807,7 +807,7 @@ export default function App() {
   if (!authChecked) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 font-sans p-6">
-        <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mb-4" />
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
         <h3 className="text-slate-600 dark:text-slate-300 font-bold text-sm animate-pulse">جاري فك تشفير وتأمين مساحة العمل...</h3>
       </div>
     );
@@ -833,8 +833,8 @@ export default function App() {
       {/* Sidebar - Desktop Only */}
       <aside className="w-64 hidden lg:flex flex-col border-l border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b] shrink-0">
         <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-tr from-amber-500 via-yellow-500 to-amber-600 dark:from-amber-600 dark:to-yellow-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-amber-500/20 border border-amber-400/20">
-            <Coins size={20} className="text-white drop-shadow-md" />
+          <div className="w-10 h-10 bg-gradient-to-tr from-blue-500 via-sky-500 to-blue-600 dark:from-blue-600 dark:to-sky-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 border border-blue-400/20">
+            <Gift size={20} className="text-white drop-shadow-md" />
           </div>
           <div>
             <span className="text-sm font-bold tracking-tight text-slate-800 dark:text-white">كشف النقوط</span>
@@ -1034,8 +1034,8 @@ export default function App() {
           <div className="px-4 py-3 flex items-center justify-between">
             {/* Logo and Brand Title */}
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-gradient-to-tr from-amber-500 via-yellow-500 to-amber-600 dark:from-amber-600 dark:to-yellow-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-amber-500/20 border border-amber-400/20">
-                <Coins size={15} className="text-white drop-shadow-sm" />
+              <div className="w-8 h-8 bg-gradient-to-tr from-blue-500 via-sky-500 to-blue-600 dark:from-blue-600 dark:to-sky-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/20 border border-blue-400/20">
+                <Gift size={15} className="text-white drop-shadow-sm" />
               </div>
               <div>
                 <h1 className="font-extrabold text-slate-800 dark:text-white text-xs leading-none">كشف النقوط</h1>

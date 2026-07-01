@@ -4,6 +4,16 @@ import {
   Trash2, Edit, AlertTriangle, ArrowUpRight, ArrowDownLeft, TrendingUp, HelpCircle, 
   Clock, ShieldCheck, Sparkles, BellRing
 } from 'lucide-react';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
 import { Occasion, NoqootTransaction, OccasionType } from '../types';
 import { decryptText } from '../utils/security';
 
@@ -58,6 +68,7 @@ export default function Dashboard({
   const [formType, setFormType] = useState<OccasionType>('wedding');
   const [formNotes, setFormNotes] = useState('');
   const [occasionSearchQuery, setOccasionSearchQuery] = useState('');
+  const [chartViewMode, setChartViewMode] = useState<'individual' | 'category'>('individual');
 
   // Filtered occasions list
   const filteredOccasions = occasions.filter(occ => {
@@ -189,6 +200,26 @@ export default function Dashboard({
     .reduce((sum, t) => sum + t.amount, 0);
 
   const currentOccasionsNet = currentOccasionsReceived - currentOccasionsPaid;
+
+  // Prepare datasets for Recharts comparison
+  const individualChartData = occasions.map(occ => {
+    const title = decryptText(occ.title, encryptionKey);
+    const oTxs = transactions.filter(t => t.occasionId === occ.id);
+    const rec = oTxs.filter(t => t.type === 'received').reduce((sum, t) => sum + t.amount, 0);
+    const paid = oTxs.filter(t => t.type === 'paid').reduce((sum, t) => sum + t.amount, 0);
+    return {
+      name: title.length > 15 ? title.substring(0, 15) + '...' : title,
+      fullName: title,
+      'مستلم (وارد)': rec,
+      'مدفوع (صادر)': paid,
+    };
+  });
+
+  const categoryChartData = categoriesList.map(cat => ({
+    name: cat.label,
+    'مستلم (وارد)': cat.received,
+    'مدفوع (صادر)': cat.paid,
+  }));
 
   return (
     <div className="space-y-8 font-sans" dir="rtl">
@@ -324,90 +355,122 @@ export default function Dashboard({
           </div>
         </div>
 
-        {/* Right Column: Hand-drawn SVG Statistical Chart */}
+        {/* Right Column: Interactive Recharts Statistical Chart */}
         <div className="lg:col-span-7 bg-white/80 dark:glass border border-slate-200/50 dark:border-white/5 p-6 rounded-3xl shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2">
               <Clock className="text-blue-600 dark:text-blue-400" size={18} />
-              <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">مقارنة الإنفاق والتبادل حسب نوع المناسبة</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-xs md:text-sm">توزيع تبادل النقود والالتزامات</h3>
             </div>
-            <span className="text-[10px] text-blue-600 dark:text-[#60a5fa] font-bold flex items-center gap-1">
-              <Sparkles size={12} />
-              <span>تقارير إحصائية دورية</span>
-            </span>
-          </div>
-
-          {/* SVG Bar Chart */}
-          <div className="relative flex-grow flex items-end justify-center py-4 h-[200px]">
-            <svg viewBox="0 0 500 180" className="w-full h-full">
-              {/* Grid Lines */}
-              <line x1="40" y1="20" x2="480" y2="20" stroke="#f1f5f9" strokeWidth="1" className="dark:stroke-slate-800" />
-              <line x1="40" y1="70" x2="480" y2="70" stroke="#f1f5f9" strokeWidth="1" className="dark:stroke-slate-800" />
-              <line x1="40" y1="120" x2="480" y2="120" stroke="#f1f5f9" strokeWidth="1" className="dark:stroke-slate-800" />
-              <line x1="40" y1="150" x2="480" y2="150" stroke="#e2e8f0" strokeWidth="1" className="dark:stroke-slate-700" />
-
-              {/* Draw bars for each occasion category */}
-              {categoriesList.map((cat, idx) => {
-                const groupWidth = 80;
-                const startX = 50 + idx * groupWidth;
-                
-                // Calculate height relative to maxVal
-                const recHeight = (cat.received / maxVal) * 110;
-                const paidHeight = (cat.paid / maxVal) * 110;
-
-                return (
-                  <g key={cat.type}>
-                    {/* Received Bar (Blue) */}
-                    <rect
-                      x={startX}
-                      y={150 - recHeight}
-                      width="16"
-                      height={recHeight}
-                      fill="#3b82f6"
-                      rx="3"
-                      className="transition-all duration-300 hover:fill-blue-500 cursor-pointer"
-                    />
-                    
-                    {/* Paid Bar (Rose) */}
-                    <rect
-                      x={startX + 20}
-                      y={150 - paidHeight}
-                      width="16"
-                      height={paidHeight}
-                      fill="#e11d48"
-                      rx="3"
-                      className="transition-all duration-300 hover:fill-rose-500 cursor-pointer"
-                    />
-
-                    {/* Labels under the category */}
-                    <text
-                      x={startX + 18}
-                      y="168"
-                      fontSize="9"
-                      fill="#94a3b8"
-                      textAnchor="middle"
-                      className="font-bold animate-pulse"
-                    >
-                      {cat.label}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-
-          {/* Chart Legends */}
-          <div className="flex justify-center gap-8 text-[10px] border-t border-slate-50 dark:border-slate-800/50 pt-3">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-md" />
-              <span className="text-slate-500 dark:text-slate-400 font-bold">نقوط ووارد مستلم (إجمالي)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-rose-600 rounded-md" />
-              <span className="text-slate-500 dark:text-slate-400 font-bold">نقوط وصادر مدفوع (إجمالي)</span>
+            
+            {/* View Mode Toggle Buttons */}
+            <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200/40 dark:border-slate-800/40 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setChartViewMode('individual')}
+                className={`px-2.5 py-1 rounded-lg text-[9px] font-black transition-all ${
+                  chartViewMode === 'individual'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-[#60a5fa] shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                }`}
+              >
+                المناسبات المحددة
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartViewMode('category')}
+                className={`px-2.5 py-1 rounded-lg text-[9px] font-black transition-all ${
+                  chartViewMode === 'category'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-[#60a5fa] shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                }`}
+              >
+                تصنيف الفئات
+              </button>
             </div>
           </div>
 
+          {/* Recharts Bar Chart Container */}
+          {chartViewMode === 'individual' && individualChartData.length === 0 ? (
+            <div className="flex-grow flex flex-col items-center justify-center p-8 text-center text-xs text-slate-450 dark:text-slate-500 min-h-[220px]">
+              <Sparkles className="text-blue-500 mb-2 animate-pulse" size={24} />
+              <p className="font-bold">لا توجد مناسبات مسجلة بعد</p>
+              <p className="text-[10px] text-slate-400 mt-1 max-w-[280px]">قم بتسجيل مناسبتك الاجتماعية الأولى لتفعيل تحليلات الرسم البياني التفاعلي.</p>
+            </div>
+          ) : (
+            <div className="relative flex-grow w-full h-[220px] my-3" dir="ltr">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartViewMode === 'individual' ? individualChartData : categoryChartData}
+                  margin={{ top: 10, right: 5, left: -25, bottom: 5 }}
+                >
+                  <defs>
+                    <linearGradient id="receivedGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
+                    </linearGradient>
+                    <linearGradient id="paidGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#e11d48" stopOpacity={0.7} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.08)" />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 700, fontFamily: 'sans-serif' }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 600 }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '16px',
+                      color: '#fff',
+                      textAlign: 'right',
+                      direction: 'rtl',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      fontFamily: 'sans-serif',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.4)'
+                    }}
+                    cursor={{ fill: 'rgba(148, 163, 184, 0.04)' }}
+                  />
+                  <Bar 
+                    dataKey="مستلم (وارد)" 
+                    fill="url(#receivedGrad)" 
+                    radius={[4, 4, 0, 0]} 
+                    maxBarSize={22}
+                    name="نقوط مستلم (وارد)"
+                  />
+                  <Bar 
+                    dataKey="مدفوع (صادر)" 
+                    fill="url(#paidGrad)" 
+                    radius={[4, 4, 0, 0]} 
+                    maxBarSize={22}
+                    name="نقوط مدفوع (صادر)"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Interactive Chart Legends */}
+          <div className="flex justify-center gap-6 text-[9px] border-t border-slate-100/60 dark:border-slate-800/60 pt-3">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 bg-emerald-500 rounded-md shadow-sm shadow-emerald-500/10" />
+              <span className="text-slate-500 dark:text-slate-400 font-extrabold">المبالغ المستلمة (النقوط الواردة)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 bg-rose-500 rounded-md shadow-sm shadow-rose-500/10" />
+              <span className="text-slate-500 dark:text-slate-400 font-extrabold">المبالغ المدفوعة (النقوط الصادرة)</span>
+            </div>
+          </div>
         </div>
 
       </div>

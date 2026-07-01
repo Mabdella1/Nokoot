@@ -9,7 +9,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth } from '../firebase';
-import { Mail, Key, User, ShieldAlert, Sparkles, CheckCircle, Moon, Sun, Coins } from 'lucide-react';
+import { Mail, Key, User, ShieldAlert, Sparkles, CheckCircle, Moon, Sun, Coins, Gift } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface AuthScreenProps {
@@ -171,8 +171,8 @@ export default function AuthScreen({
             <span className="font-extrabold text-slate-900 dark:text-white text-base block tracking-tight leading-none">كشف النقوط</span>
             <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold block mt-1">المساعد الذكي للمناسبات والديون</span>
           </div>
-          <div className="w-9 h-9 bg-gradient-to-tr from-amber-500 via-yellow-500 to-amber-600 dark:from-amber-600 dark:to-yellow-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-amber-500/20 border border-amber-400/20">
-            <Coins size={18} className="text-white drop-shadow-md" />
+          <div className="w-9 h-9 bg-gradient-to-tr from-blue-500 via-sky-500 to-blue-600 dark:from-blue-600 dark:to-sky-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 border border-blue-400/20">
+            <Gift size={18} className="text-white drop-shadow-md" />
           </div>
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function AuthScreen({
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="مثال: أحمد محمد"
-                    className="w-full pr-11 pl-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-teal-500 dark:focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 text-slate-800 dark:text-slate-200 transition-all"
+                    className="w-full pr-11 pl-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-slate-800 dark:text-slate-200 transition-all"
                   />
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function AuthScreen({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full pr-11 pl-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-teal-500 dark:focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 text-slate-800 dark:text-slate-200 transition-all text-left"
+                  className="w-full pr-11 pl-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-slate-800 dark:text-slate-200 transition-all text-left"
                 />
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function AuthScreen({
                   <button
                     type="button"
                     onClick={handlePasswordReset}
-                    className="text-[11px] font-semibold text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
+                    className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
                   >
                     نسيت كلمة المرور؟
                   </button>
@@ -272,7 +272,7 @@ export default function AuthScreen({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="******"
-                  className="w-full pr-11 pl-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-teal-500 dark:focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 text-slate-800 dark:text-slate-200 transition-all text-left"
+                  className="w-full pr-11 pl-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 text-slate-800 dark:text-slate-200 transition-all text-left"
                 />
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function AuthScreen({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-500/10 active:scale-[0.98] transition-all cursor-pointer text-xs mt-2 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/10 active:scale-[0.98] transition-all cursor-pointer text-xs mt-2 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -301,7 +301,7 @@ export default function AuthScreen({
                 setError('');
                 setInfoMessage('');
               }}
-              className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
+              className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
             >
               {isSignUp ? 'لديك حساب بالفعل؟ سجل دخولك من هنا' : 'ليس لديك حساب؟ قم بإنشاء حساب جديد بضغطة واحدة'}
             </button>

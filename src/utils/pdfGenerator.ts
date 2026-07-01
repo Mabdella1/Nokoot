@@ -306,22 +306,25 @@ export function exportToPDF(
     giftDescription: t.giftDescription ? decryptText(t.giftDescription, encryptionKey) : ""
   }));
 
-  // Create temporary off-screen container for rendering
-  const tempDiv = document.createElement('div');
-  tempDiv.id = 'pdf-export-temp';
-  tempDiv.style.position = 'absolute';
-  tempDiv.style.left = '-9999px';
-  tempDiv.style.top = '0';
-  tempDiv.style.width = '800px';
-  tempDiv.style.backgroundColor = '#ffffff';
-  tempDiv.style.padding = '35px';
-  tempDiv.style.boxSizing = 'border-box';
-  tempDiv.style.direction = 'rtl';
-  tempDiv.setAttribute('dir', 'rtl');
+  // Create temporary off-screen iframe for rendering to completely isolate from main document CSS containing oklch
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '-9999px';
+  iframe.style.width = '800px';
+  iframe.style.height = '1200px';
+  iframe.style.border = 'none';
+  document.body.appendChild(iframe);
 
   const styleBlock = `
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+      
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+      }
       
       .pdf-container {
         font-family: 'Cairo', sans-serif;
@@ -329,7 +332,9 @@ export function exportToPDF(
         background-color: #ffffff;
         line-height: 1.6;
         direction: rtl;
-        padding: 10px;
+        padding: 35px;
+        box-sizing: border-box;
+        width: 800px;
       }
       .header {
         border-bottom: 3px double #0f766e;
@@ -438,7 +443,7 @@ export function exportToPDF(
   `;
 
   const innerContent = `
-    <div class="pdf-container">
+    <div class="pdf-container" id="pdf-container">
       <div class="header">
         <div>
           <h1>${titleText}</h1>
@@ -510,12 +515,40 @@ export function exportToPDF(
     </div>
   `;
 
-  tempDiv.innerHTML = styleBlock + innerContent;
-  document.body.appendChild(tempDiv);
+  const iframeDoc = iframe.contentWindow?.document || iframe.contentDocument;
+  if (!iframeDoc) {
+    if (document.body.contains(iframe)) {
+      document.body.removeChild(iframe);
+    }
+    return;
+  }
+
+  iframeDoc.open();
+  iframeDoc.write(`
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      ${styleBlock}
+    </head>
+    <body>
+      ${innerContent}
+    </body>
+    </html>
+  `);
+  iframeDoc.close();
 
   // Wait a short moment to ensure Cairo font imports are fully loaded & elements are correctly styled
   setTimeout(() => {
-    html2canvas(tempDiv, {
+    const elementToCapture = iframeDoc.getElementById('pdf-container');
+    if (!elementToCapture) {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+      return;
+    }
+
+    html2canvas(elementToCapture, {
       scale: 2, // 2x scale for crisp high-density PDF image quality
       useCORS: true,
       allowTaint: true,
@@ -556,13 +589,13 @@ export function exportToPDF(
       pdf.save(cleanFileName);
       
       // Clean up DOM node
-      if (document.body.contains(tempDiv)) {
-        document.body.removeChild(tempDiv);
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
       }
     }).catch(err => {
       console.error("PDF generation failed:", err);
-      if (document.body.contains(tempDiv)) {
-        document.body.removeChild(tempDiv);
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
       }
       alert("عذراً، حدث خطأ أثناء تصدير ملف الـ PDF. يرجى المحاولة ثانية.");
     });
